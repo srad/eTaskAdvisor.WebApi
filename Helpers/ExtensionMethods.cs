@@ -1,0 +1,26 @@
+using System.Collections.Generic;
+using System.Linq;
+using eTaskAdvisor.WebApi.Data.SchemaPoco;
+
+namespace eTaskAdvisor.WebApi.Helpers
+{
+  public static class ExtensionMethods
+    {
+        public static IEnumerable<Client> ForPublics(this IEnumerable<Client> users) {
+            return users.Select(x => x.ForPublic());
+        }
+
+        public static Client ForPublic(this Client user)
+        {
+            user.Password = null;
+            user.ClientId = 0;
+            return user;
+        }
+
+        public static Client WithPassword(this Client user)
+        {
+            user.ClientId = 0;
+            return user;
+        }    
+    }
+}
