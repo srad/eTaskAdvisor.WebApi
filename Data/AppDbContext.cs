@@ -1,3 +1,4 @@
+using eTaskAdvisor.WebApi.Data.SchemaPoco;
 using Microsoft.EntityFrameworkCore;
 
 namespace eTaskAdvisor.WebApi.Data
@@ -10,6 +11,7 @@ namespace eTaskAdvisor.WebApi.Data
       Database.EnsureCreated();
     }
 
+/*
     public DbSet<Client> Clients { get; set; }
     public DbSet<Activity> Activities { get; set; }
     public DbSet<Affect> Affects { get; set; }
@@ -74,5 +76,6 @@ namespace eTaskAdvisor.WebApi.Data
         entity.HasOne(e => e.Influence);
       });
     }
+    */
   }
 }

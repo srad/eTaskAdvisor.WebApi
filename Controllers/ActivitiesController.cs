@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using eTaskAdvisor.WebApi.Data.SchemaPoco;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using PetaPoco;
 
 namespace eTaskAdvisor.WebApi.Controllers
@@ -13,40 +12,47 @@ namespace eTaskAdvisor.WebApi.Controllers
     [Authorize]
     [ApiController]
     [Route("[controller]")]
-    public class ActivitiesController : ControllerBase
+    public class ActivitiesController : AppController
     {
-        private readonly IDatabase db;
-
-        public ActivitiesController(IDatabase db)
+        public ActivitiesController(IDatabase database) : base(database)
         {
-            this.db = db;
         }
 
         [HttpGet("{page?}/{limit?}")]
         public IEnumerable<Activity> Get(int page = 0, int limit = 10)
         {
-            var sql = @"SELECT * FROM activities LIMIT @0,@1";
-            return db.Fetch<Activity>(sql, page, limit).ToList();
+            return Database.Fetch<Activity>(@"SELECT * FROM activities LIMIT @0,@1", page, limit).ToList();
+        }
+
+        [HttpGet("affect/{activityId:int}")]
+        public IEnumerable<Affect> AffectedBy(int activityId)
+        {
+            const string sql = @"SELECT * FROM affects
+                JOIN factors USING(factor_id)
+                JOIN influences USING(influence_name)
+                WHERE activity_id = @0";
+
+            return Database.Fetch<Affect, Factor, Influence>(sql, activityId);
         }
 
         [HttpPost]
         public async Task<Activity> Post([FromBody] Activity activity)
         {
-            await db.InsertAsync(activity);
+            await Database.InsertAsync(activity);
             return activity;
         }
 
         [HttpPut]
         public async Task<Activity> Put([FromBody] Activity activity)
         {
-            await db.UpdateAsync(activity);
+            await Database.UpdateAsync(activity);
             return activity;
         }
 
         [HttpDelete("{id}")]
         public async Task<int> Delete(int id)
         {
-            return await db.DeleteAsync<Activity>(id);
+            return await Database.DeleteAsync<Activity>(id);
         }
     }
 }

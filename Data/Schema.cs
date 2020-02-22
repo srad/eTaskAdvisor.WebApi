@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace eTaskAdvisor.WebApi.Data
+namespace eTaskAdvisor.WebApi.Data.Shelved
 {
     public class Client
     {

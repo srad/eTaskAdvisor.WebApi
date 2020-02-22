@@ -1,10 +1,12 @@
 using System.Linq;
+using eTaskAdvisor.WebApi.Data.SchemaPoco;
 
 namespace eTaskAdvisor.WebApi.Data {
     public static class DbInit
     {
         public static void Initialize(AppDbContext context)
         {
+            /*
             context.Database.EnsureCreated();
 
             // Look for any students.
@@ -24,6 +26,7 @@ namespace eTaskAdvisor.WebApi.Data {
                 context.Clients.Add(client);
             }
             context.SaveChanges();
+            */
         }
     }
 }

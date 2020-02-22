@@ -12,45 +12,49 @@ namespace eTaskAdvisor.WebApi.Controllers
     [Authorize]
     [ApiController]
     [Route("[controller]")]
-    public class AffectsController : ControllerBase
+    public class AffectsController : AppController
     {
-        private readonly IDatabase db;
-
-        public AffectsController(IDatabase db)
+        public AffectsController(IDatabase database) : base(database)
         {
-            this.db = db;
         }
 
         [HttpGet("{page?}/{limit?}")]
         public IEnumerable<Affect> Get(int page = 0, int limit = 10)
         {
-            var sql = @"SELECT * FROM affects
+            const string sql = @"SELECT * FROM affects
                 JOIN activities USING(activity_id)
                 JOIN influences USING(influence_name)
                 JOIN factors USING(factor_id)
                 LIMIT @0,@1";
 
-            return db.Fetch<Affect, Activity, Influence, Factor>(sql, page, limit).ToList();
+            return Database.Fetch<Affect, Activity, Influence, Factor>(sql, page, limit).ToList();
         }
 
         [HttpPost]
         public async Task<Affect> Post([FromBody] Affect affect)
         {
-            await db.InsertAsync(affect);
-            return affect;
+            await Database.InsertAsync(affect);
+
+            const string sql = @"SELECT * FROM affects
+                JOIN activities USING(activity_id)
+                JOIN influences USING(influence_name)
+                JOIN factors USING(factor_id)
+                WHERE affect_id = @0";
+
+            return Database.Fetch<Affect, Activity, Influence, Factor>(sql, affect.AffectId).FirstOrDefault();
         }
 
         [HttpPut]
         public async Task<Affect> Put([FromBody] Affect activity)
         {
-            await db.UpdateAsync(activity);
+            await Database.UpdateAsync(activity);
             return activity;
         }
 
         [HttpDelete("{id}")]
         public async Task<int> Delete(int id)
         {
-            return await db.DeleteAsync<Affect>(id);
+            return await Database.DeleteAsync<Affect>(id);
         }
     }
 }

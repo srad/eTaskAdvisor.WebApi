@@ -25,14 +25,16 @@ namespace eTaskAdvisor.WebApi
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
             services.AddControllers();
-            services.AddScoped<IDatabase, PetaPoco.Database>(ctx => new Database<PetaPoco.Providers.MySqlDatabaseProvider>(Configuration.GetConnectionString("PocoConnection")));
+            services.AddScoped<IDatabase, PetaPoco.Database>(ctx =>
+                new Database<PetaPoco.Providers.MySqlDatabaseProvider>(
+                    Configuration.GetConnectionString("PocoConnection")));
 
             // configure strongly typed settings objects
             var appSettingsSection = Configuration.GetSection("AppSettings");
@@ -64,7 +66,7 @@ namespace eTaskAdvisor.WebApi
 
             /*
             var connection = "Server=localhost;Database=ef;User=root;Password=1234;";
-
+      
             services.AddDbContextPool<AppDbContext>(options => options
                 .UseMySql(connection, mySqlOptions => mySqlOptions
                 .ServerVersion(new ServerVersion(new Version(5, 7), ServerType.MySql))

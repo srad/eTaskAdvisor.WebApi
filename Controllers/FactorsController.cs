@@ -13,40 +13,36 @@ namespace eTaskAdvisor.WebApi.Controllers
     [ApiController]
     [Consumes("application/json")]
     [Route("[controller]")]
-    public class FactorsController : ControllerBase
+    public class FactorsController : AppController
     {
-        private readonly IDatabase db;
-
-        public FactorsController(IDatabase db)
+        public FactorsController(IDatabase database) : base(database)
         {
-            this.db = db;
         }
 
         [HttpGet("{page?}/{limit?}")]
-        public IEnumerable<Factor> Get(int page = 0, int limit = 10)
+        public async Task<IEnumerable<Factor>> Get(int page = 0, int limit = 10)
         {
-            var sql = @"SELECT * FROM factors LIMIT @0,@1";
-            return db.Fetch<Factor>(sql, page, limit).ToList();
+            return await Database.FetchAsync<Factor>(@"SELECT * FROM factors LIMIT @0,@1", page, limit);
         }
 
         [HttpPost]
         public async Task<Factor> Post([FromBody] Factor factor)
         {
-            await db.InsertAsync(factor);
+            await Database.InsertAsync(factor);
             return factor;
         }
 
         [HttpPut]
         public async Task<Factor> Put([FromBody] Factor factor)
         {
-            await db.UpdateAsync(factor);
+            await Database.UpdateAsync(factor);
             return factor;
         }
 
         [HttpDelete("{id}")]
         public async Task<int> Delete(int id)
         {
-            return await db.DeleteAsync<Factor>(id);
+            return await Database.DeleteAsync<Factor>(id);
         }
     }
 }
