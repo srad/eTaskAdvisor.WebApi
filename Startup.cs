@@ -102,15 +102,16 @@ namespace eTaskAdvisor.WebApi
 
             // Runs behind a SSL proxy.
             // app.UseHttpsRedirection();
-
-            app.UseRouting();
-
+            
             app.UseCors(x => x
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader());
 
             app.UseAuthentication();
+            
+            app.UseRouting();
+            
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
