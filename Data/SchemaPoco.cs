@@ -119,6 +119,9 @@ namespace eTaskAdvisor.WebApi.Data.SchemaPoco
         [Column(Name = "duration")]
         public int Duration { get; set; }
         
+        [Column(Name = "done")]
+        public bool Done { get; set; }
+        
         [Ignore]
         public Activity Activity { get; set; }
         

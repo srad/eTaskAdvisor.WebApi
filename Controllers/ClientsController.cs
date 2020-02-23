@@ -48,7 +48,8 @@ namespace eTaskAdvisor.WebApi.Controllers
                 @"SELECT tasks.*, activities.name as activity_name, activities.description as activity_description
                 FROM tasks
                 JOIN activities USING(activity_id)
-                WHERE client_id = @0";
+                WHERE client_id = @0
+                ORDER BY at DESC";
 
             var tasks = Database.Query<ClientTask>(sql, client.ClientId)
                 .Select(result => new ClientTask
@@ -57,6 +58,7 @@ namespace eTaskAdvisor.WebApi.Controllers
                     Subject = result.Subject,
                     At = result.At,
                     Duration = result.Duration,
+                    Done =  result.Done,
                     Activity = new Activity {Name = result.ActivityName, Description = result.ActivityDescription},
                 });
 
@@ -87,6 +89,20 @@ namespace eTaskAdvisor.WebApi.Controllers
             task.ClientId = client.ClientId;
             await Database.InsertAsync(task);
             return Ok(task);
+        }
+
+        [HttpPost("done")]
+        public async Task<IActionResult> DoneTask([FromBody] ClientTask task)
+        {
+            var client = await GetClient();
+            if (client == null)
+            {
+                return NotFound(new ApiNotFoundError("The client has not been found"));
+            }
+
+            var result = await Database.FirstAsync<ClientTask>("WHERE client_id = @0 AND task_id = @1", client.ClientId, task.TaskId);
+            result.Done = task.Done;
+            return Ok(await Database.UpdateAsync(result));
         }
 
         [HttpDelete("tasks/{taskId}")]
