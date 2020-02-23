@@ -79,6 +79,24 @@ namespace eTaskAdvisor.WebApi
         {
             if (env.IsDevelopment())
             {
+                Data.Seeds.PocoSeed.Generate();
+
+                /*
+                using (var scope = host.Services.CreateScope())
+                {
+                    var services = scope.ServiceProvider;
+                    try
+                    {
+                        var context = services.GetRequiredService<AppDbContext>();
+                        DbInit.Initialize(context);
+                    }
+                    catch (Exception ex)
+                    {
+                        var logger = services.GetRequiredService<ILogger<Program>>();
+                        logger.LogError(ex, "An error occurred while seeding the database.");
+                    }
+                }
+                */
                 app.UseDeveloperExceptionPage();
             }
 
