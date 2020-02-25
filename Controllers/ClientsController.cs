@@ -34,8 +34,8 @@ namespace eTaskAdvisor.WebApi.Controllers
             return client;
         }
 
-        [HttpGet("tasks/{page?}/{limit?}")]
-        public async Task<IActionResult> ClientTasks(int page = 0, int limit = 10)
+        [HttpGet("tasks")]
+        public async Task<IActionResult> ClientTasks([FromQuery(Name = "done")] bool done)
         {
             var client = await GetClient();
 
@@ -48,10 +48,12 @@ namespace eTaskAdvisor.WebApi.Controllers
                 @"SELECT tasks.*, activities.name as activity_name, activities.description as activity_description
                 FROM tasks
                 JOIN activities USING(activity_id)
-                WHERE client_id = @0
-                ORDER BY at DESC";
+                WHERE tasks.client_id = @0 AND tasks.done = @1
+                ORDER BY at DESC
+                LIMIT 100
+                ";
 
-            var tasks = Database.Query<ClientTask>(sql, client.ClientId)
+            var tasks = Database.Query<ClientTask>(sql, client.ClientId, done)
                 .Select(result => new ClientTask
                 {
                     TaskId = result.TaskId,
@@ -88,6 +90,7 @@ namespace eTaskAdvisor.WebApi.Controllers
 
             task.ClientId = client.ClientId;
             await Database.InsertAsync(task);
+            task.Activity = await Database.FirstAsync<Activity>("WHERE activity_id = @0", task.ActivityId);
             return Ok(task);
         }
 
