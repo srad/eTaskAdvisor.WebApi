@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Threading.Tasks;
+using eTaskAdvisor.WebApi.Migrations.FluentMigrator;
 using eTaskAdvisor.WebApi.Seeds;
+using FluentMigrator.Runner;
 //using eTaskAdvisor.WebApi.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -46,22 +44,22 @@ namespace eTaskAdvisor.WebApi
             var key = System.Text.Encoding.ASCII.GetBytes(appSettings.Secret);
 
             services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(x =>
-            {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
-            });
+                    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(x =>
+                {
+                    x.RequireHttpsMetadata = false;
+                    x.SaveToken = true;
+                    x.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(key),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
+                });
 
             services.AddScoped<Services.IUserService, Services.UserService>();
 
@@ -78,6 +76,9 @@ namespace eTaskAdvisor.WebApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            var runner = new Runner(CreateServices());
+            runner.UpdateDatabase();
+
             if (env.IsDevelopment())
             {
                 PocoSeed.Generate();
@@ -103,16 +104,16 @@ namespace eTaskAdvisor.WebApi
 
             // Runs behind a SSL proxy.
             // app.UseHttpsRedirection();
-            
+
             app.UseCors(x => x
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader());
 
             app.UseAuthentication();
-            
+
             app.UseRouting();
-            
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -121,6 +122,22 @@ namespace eTaskAdvisor.WebApi
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        private static IServiceProvider CreateServices()
+        {
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", optional: false)
+                .Build();
+
+            return new ServiceCollection()
+                .AddFluentMigratorCore()
+                .ConfigureRunner(rb => rb
+                    .AddMySql5()
+                    .WithGlobalConnectionString(config.GetConnectionString("PocoConnection"))
+                    .ScanIn(typeof(AddLogTable).Assembly).For.Migrations())
+                .AddLogging(lb => lb.AddFluentMigratorConsole())
+                .BuildServiceProvider(false);
         }
     }
 }

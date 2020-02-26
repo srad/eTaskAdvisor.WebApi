@@ -22,15 +22,6 @@ namespace eTaskAdvisor.WebApi
     {
         public static void Main(string[] args)
         {
-            var serviceProvider = CreateServices();
-
-            // Put the database update into a scope to ensure
-            // that all resources will be disposed.
-            using (var scope = serviceProvider.CreateScope())
-            {
-                UpdateDatabase(scope.ServiceProvider);
-            }
-
             var host = CreateHostBuilder(args).Build();
             host.Run();
         }
@@ -38,28 +29,5 @@ namespace eTaskAdvisor.WebApi
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
-
-        private static IServiceProvider CreateServices()
-        {
-            var config = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: false)
-                .Build();
-            
-            return new ServiceCollection()
-                .AddFluentMigratorCore()
-                .ConfigureRunner(rb => rb
-                    .AddMySql5()
-                    .WithGlobalConnectionString(config.GetConnectionString("PocoConnection"))
-                    .ScanIn(typeof(AddClientTable).Assembly).For.Migrations())
-                .AddLogging(lb => lb.AddFluentMigratorConsole())
-                .BuildServiceProvider(false);
-        }
-
-        private static void UpdateDatabase(IServiceProvider serviceProvider)
-        {
-            var runner = serviceProvider.GetRequiredService<IMigrationRunner>();
-
-            runner.MigrateUp();
-        }
     }
 }
