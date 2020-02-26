@@ -6,13 +6,13 @@ namespace eTaskAdvisor.WebApi.Helpers
 {
     public static class SecurityHelper
     {
-        private static Random random = new Random();
-        const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        private static readonly Random Random = new Random();
+        const string Chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         
         public static string RandomString(int length)
         {
-            return new string(Enumerable.Repeat(chars, length)
-              .Select(s => s[random.Next(s.Length)]).ToArray());
+            return new string(Enumerable.Repeat(Chars, length)
+              .Select(s => s[Random.Next(s.Length)]).ToArray());
         }
 
         public static string HashPassword(string password, string salt)

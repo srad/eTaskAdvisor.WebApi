@@ -1,4 +1,3 @@
-using eTaskAdvisor.WebApi.Data.SchemaPoco;
 using Microsoft.EntityFrameworkCore;
 
 namespace eTaskAdvisor.WebApi.Data

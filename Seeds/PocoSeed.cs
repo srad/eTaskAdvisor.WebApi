@@ -1,13 +1,13 @@
 using System;
 using System.Linq;
 using Bogus;
-using eTaskAdvisor.WebApi.Data.SchemaPoco;
 using eTaskAdvisor.WebApi.Helpers;
+using eTaskAdvisor.WebApi.Models;
 using Microsoft.Extensions.Configuration;
 using PetaPoco;
 using PetaPoco.Providers;
 
-namespace eTaskAdvisor.WebApi.Data.Seeds
+namespace eTaskAdvisor.WebApi.Seeds
 {
     public static class PocoSeed
     {
@@ -22,13 +22,13 @@ namespace eTaskAdvisor.WebApi.Data.Seeds
 
             // Or the fluent configuration (PostgreSQL as an example)
             var db = DatabaseConfiguration.Build()
-                    .UsingConnectionString(config.GetConnectionString("PocoConnection"))
-                    .UsingProvider<MySqlDatabaseProvider>()
-                    .UsingDefaultMapper<ConventionMapper>(m =>
-                    {
-                        m.InflectTableName = (inflector, s) => inflector.Pluralise(inflector.Underscore(s));
-                        m.InflectColumnName = (inflector, s) => inflector.Underscore(s);
-                    }).Create();
+                .UsingConnectionString(config.GetConnectionString("PocoConnection"))
+                .UsingProvider<MySqlDatabaseProvider>()
+                .UsingDefaultMapper<ConventionMapper>(m =>
+                {
+                    m.InflectTableName = (inflector, s) => inflector.Pluralise(inflector.Underscore(s));
+                    m.InflectColumnName = (inflector, s) => inflector.Underscore(s);
+                }).Create();
 
             var factorData = new Faker<Factor>();
             factorData.RuleFor(factor => factor.Name, faker => "Faker: " + faker.Name.JobArea());
@@ -39,7 +39,6 @@ namespace eTaskAdvisor.WebApi.Data.Seeds
             activityData.RuleFor(a => a.Description, faker => faker.Name.JobTitle());
 
             var clientData = new Faker<Client>();
-            clientData.RuleFor(c => c.Name, faker => faker.Name.FirstName());
             clientData.RuleFor(c => c.Password, faker => SecurityHelper.HashPassword(faker.Internet.Password(), settings.Secret));
             clientData.RuleFor(c => c.Token, (faker, client) => "");
 
@@ -48,13 +47,11 @@ namespace eTaskAdvisor.WebApi.Data.Seeds
             {
                 var f = db.Query<Factor>("SELECT * FROM factors ORDER BY RAND() LIMIT 1;").First();
                 return f.FactorId;
-
             });
             affectData.RuleFor(a => a.ActivityId, faker =>
             {
                 var a = db.Query<Activity>("SELECT * FROM activities ORDER BY RAND() LIMIT 1;").First();
                 return a.ActivityId;
-
             });
             affectData.RuleFor(a => a.InfluenceName, faker =>
             {
@@ -90,24 +87,41 @@ namespace eTaskAdvisor.WebApi.Data.Seeds
             // Start Generation
             if (db.Query<Influence>().Count() == 0)
             {
-                for (int i = 0; i < 10; i++) { db.Insert(clientData.Generate()); }
-                for (int i = 0; i < 30; i++) { db.Insert(activityData.Generate()); }
-                for (int i = 0; i < 50; i++) { db.Insert(factorData.Generate()); }
+                for (int i = 0; i < 10; i++)
+                {
+                    db.Insert(clientData.Generate());
+                }
 
-                db.Insert(new Influence { InfluenceDisplay = "Positive", InfluenceName = "positive" });
-                db.Insert(new Influence { InfluenceDisplay = "Negative", InfluenceName = "negative" });
-                db.Insert(new Influence { InfluenceDisplay = "Indifferent", InfluenceName = "indifferent" });
-                db.Insert(new Influence { InfluenceDisplay = "Unclear", InfluenceName = "unclear" });
+                for (int i = 0; i < 30; i++)
+                {
+                    db.Insert(activityData.Generate());
+                }
+
+                for (int i = 0; i < 50; i++)
+                {
+                    db.Insert(factorData.Generate());
+                }
+
+                db.Insert(new Influence {InfluenceDisplay = "Positive", InfluenceName = "positive"});
+                db.Insert(new Influence {InfluenceDisplay = "Negative", InfluenceName = "negative"});
+                db.Insert(new Influence {InfluenceDisplay = "Indifferent", InfluenceName = "indifferent"});
+                db.Insert(new Influence {InfluenceDisplay = "Unclear", InfluenceName = "unclear"});
 
                 for (int i = 0; i < 100; i++)
                 {
                     var a = affectData.Generate();
                     // Don't violate primary key constraint
                     var ex = db.Exists<Affect>("WHERE activity_id = @0 AND factor_id = @1 AND influence_name = @2", a.ActivityId, a.FactorId, a.InfluenceName);
-                    if (!ex) { db.Insert(a); }
+                    if (!ex)
+                    {
+                        db.Insert(a);
+                    }
                 }
 
-                for (int i = 0; i < 100; i++) { db.Insert(clienTaskData.Generate()); }
+                for (int i = 0; i < 100; i++)
+                {
+                    db.Insert(clienTaskData.Generate());
+                }
             }
         }
     }

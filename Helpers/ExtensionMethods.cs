@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
-using eTaskAdvisor.WebApi.Data.SchemaPoco;
+using eTaskAdvisor.WebApi.Data;
+using eTaskAdvisor.WebApi.Models;
 
 namespace eTaskAdvisor.WebApi.Helpers
 {

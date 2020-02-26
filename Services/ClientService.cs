@@ -2,12 +2,13 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
-using eTaskAdvisor.WebApi.Data.SchemaPoco;
 using eTaskAdvisor.WebApi.Helpers;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using PetaPoco;
 using System.Collections;
+using eTaskAdvisor.WebApi.Data;
+using eTaskAdvisor.WebApi.Models;
 
 namespace eTaskAdvisor.WebApi.Services
 {
@@ -18,25 +19,25 @@ namespace eTaskAdvisor.WebApi.Services
 
     public class UserService : IUserService
     {
-        private readonly IDatabase db;
+        private readonly IDatabase _db;
 
-        private readonly Data.AppSettings settings;
+        private readonly Data.AppSettings _settings;
 
         public UserService(IOptions<Data.AppSettings> appSettings, IDatabase db)
         {
-            settings = appSettings.Value;
-            this.db = db;
+            _settings = appSettings.Value;
+            this._db = db;
         }
 
         // Create random password, store hashed, but return the original password.
         private Client Create()
         {
             var pass = SecurityHelper.RandomString(50);
-            var c = new Client { Name = "Test User " + db.Query<Client>().Count() + 1, Password = pass };
+            var c = new Client { Password = pass };
 
-            c.Password = SecurityHelper.HashPassword(pass, settings.Secret);
+            c.Password = SecurityHelper.HashPassword(pass, _settings.Secret);
             c.Token = CreateToken(c.ClientId.ToString());
-            db.Insert(c);
+            _db.Insert(c);
             c.Password = pass;
 
             return c;
@@ -48,9 +49,9 @@ namespace eTaskAdvisor.WebApi.Services
 
             if (password != null)
             {
-                var hashed = SecurityHelper.HashPassword(password, settings.Secret);
+                var hashed = SecurityHelper.HashPassword(password, _settings.Secret);
                 var sql = @"SELECT * FROM clients WHERE password = '" + hashed + "' LIMIT 1";
-                user = db.Query<Client>(sql).SingleOrDefault();
+                user = _db.Query<Client>(sql).SingleOrDefault();
                 if (user == null)
                 {
                     throw new Exception("User not found by password");
@@ -71,7 +72,7 @@ namespace eTaskAdvisor.WebApi.Services
         {
             // authentication successful so generate jwt token
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = System.Text.Encoding.ASCII.GetBytes(settings.Secret);
+            var key = System.Text.Encoding.ASCII.GetBytes(_settings.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -9,9 +11,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PetaPoco;
 using PetaPoco.Providers;
-using eTaskAdvisor.WebApi.Data.SchemaPoco;
 using eTaskAdvisor.WebApi.Helpers;
 using Bogus;
+using eTaskAdvisor.WebApi.Migrations.FluentMigrator;
+using FluentMigrator.Runner;
 
 namespace eTaskAdvisor.WebApi
 {
@@ -19,6 +22,15 @@ namespace eTaskAdvisor.WebApi
     {
         public static void Main(string[] args)
         {
+            var serviceProvider = CreateServices();
+
+            // Put the database update into a scope to ensure
+            // that all resources will be disposed.
+            using (var scope = serviceProvider.CreateScope())
+            {
+                UpdateDatabase(scope.ServiceProvider);
+            }
+
             var host = CreateHostBuilder(args).Build();
             host.Run();
         }
@@ -26,5 +38,30 @@ namespace eTaskAdvisor.WebApi
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
+
+        private static IServiceProvider CreateServices()
+        {
+            return new ServiceCollection()
+                // Add common FluentMigrator services
+                .AddFluentMigratorCore()
+                .ConfigureRunner(rb => rb
+                    // Add SQLite support to FluentMigrator
+                    .AddMySql5()
+                    // Set the connection string
+                    .WithGlobalConnectionString("Server=localhost;User Id=root;Password=root;Database=etaskadvisor;")
+                    // Define the assembly containing the migrations
+                    .ScanIn(typeof(AddLogTable).Assembly).For.Migrations())
+                // Enable logging to console in the FluentMigrator way
+                .AddLogging(lb => lb.AddFluentMigratorConsole())
+                // Build the service provider
+                .BuildServiceProvider(false);
+        }
+
+        private static void UpdateDatabase(IServiceProvider serviceProvider)
+        {
+            var runner = serviceProvider.GetRequiredService<IMigrationRunner>();
+
+            runner.MigrateUp();
+        }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
+using eTaskAdvisor.WebApi.Seeds;
 //using eTaskAdvisor.WebApi.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -79,7 +80,7 @@ namespace eTaskAdvisor.WebApi
         {
             if (env.IsDevelopment())
             {
-                Data.Seeds.PocoSeed.Generate();
+                PocoSeed.Generate();
 
                 /*
                 using (var scope = host.Services.CreateScope())

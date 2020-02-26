@@ -1,7 +1,6 @@
-using System.Linq;
-using eTaskAdvisor.WebApi.Data.SchemaPoco;
+using eTaskAdvisor.WebApi.Data;
 
-namespace eTaskAdvisor.WebApi.Data {
+namespace eTaskAdvisor.WebApi.Seeds.Archived {
     public static class DbInit
     {
         public static void Initialize(AppDbContext context)

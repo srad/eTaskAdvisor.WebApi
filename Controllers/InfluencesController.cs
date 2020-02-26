@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using eTaskAdvisor.WebApi.Data.SchemaPoco;
+using eTaskAdvisor.WebApi.Data;
+using eTaskAdvisor.WebApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PetaPoco;

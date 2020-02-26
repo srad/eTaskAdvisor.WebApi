@@ -1,7 +1,8 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using eTaskAdvisor.WebApi.Data;
 using eTaskAdvisor.WebApi.Data.Error;
-using eTaskAdvisor.WebApi.Data.SchemaPoco;
+using eTaskAdvisor.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using PetaPoco;
 
