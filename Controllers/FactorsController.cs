@@ -20,9 +20,13 @@ namespace eTaskAdvisor.WebApi.Controllers
         }
 
         [HttpGet("{page?}/{limit?}")]
-        public async Task<IEnumerable<Factor>> Get(int page = 0, int limit = 10)
+        public async Task<IEnumerable<Factor>> Get(int page = 0, int limit = 100)
         {
-            return await Database.FetchAsync<Factor>(@"SELECT * FROM factors LIMIT @0,@1", page, limit);
+            if (limit > 100)
+            {
+                limit = 100;
+            } 
+            return await Database.FetchAsync<Factor>(@"SELECT * FROM factors ORDER BY  name LIMIT @0,@1", page, limit);
         }
 
         [HttpPost]

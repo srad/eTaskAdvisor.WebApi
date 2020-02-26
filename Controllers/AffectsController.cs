@@ -19,12 +19,17 @@ namespace eTaskAdvisor.WebApi.Controllers
         }
 
         [HttpGet("{page?}/{limit?}")]
-        public IEnumerable<Affect> Get(int page = 0, int limit = 10)
+        public IEnumerable<Affect> Get(int page = 0, int limit = 100)
         {
+            if (limit > 100)
+            {
+                limit = 100;
+            } 
             const string sql = @"SELECT * FROM affects
                 JOIN activities USING(activity_id)
                 JOIN influences USING(influence_name)
                 JOIN factors USING(factor_id)
+                ORDER BY activities.name, factors.name
                 LIMIT @0,@1";
 
             return Database.Fetch<Affect, Activity, Influence, Factor>(sql, page, limit).ToList();

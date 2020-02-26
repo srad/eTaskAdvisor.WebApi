@@ -19,9 +19,13 @@ namespace eTaskAdvisor.WebApi.Controllers
         }
 
         [HttpGet("{page?}/{limit?}")]
-        public IEnumerable<Activity> Get(int page = 0, int limit = 10)
+        public IEnumerable<Activity> Get(int page = 0, int limit = 100)
         {
-            return Database.Fetch<Activity>(@"SELECT * FROM activities LIMIT @0,@1", page, limit).ToList();
+            if (limit > 100)
+            {
+                limit = 100;
+            } 
+            return Database.Fetch<Activity>(@"SELECT * FROM activities ORDER BY name LIMIT @0,@1", page, limit).ToList();
         }
 
         [HttpGet("affect/{activityId:int}")]
