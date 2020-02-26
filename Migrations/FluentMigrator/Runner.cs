@@ -4,9 +4,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace eTaskAdvisor.WebApi.Migrations.FluentMigrator
 {
-    class Runner
+    internal class Runner
     {
-        private IServiceProvider _serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
 
         public Runner(IServiceProvider serviceProvider)
         {

@@ -135,7 +135,7 @@ namespace eTaskAdvisor.WebApi
                 .ConfigureRunner(rb => rb
                     .AddMySql5()
                     .WithGlobalConnectionString(config.GetConnectionString("PocoConnection"))
-                    .ScanIn(typeof(AddLogTable).Assembly).For.Migrations())
+                    .ScanIn(typeof(AddAffectsTable).Assembly).For.Migrations())
                 .AddLogging(lb => lb.AddFluentMigratorConsole())
                 .BuildServiceProvider(false);
         }
