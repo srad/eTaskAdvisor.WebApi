@@ -41,19 +41,17 @@ namespace eTaskAdvisor.WebApi
 
         private static IServiceProvider CreateServices()
         {
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", optional: false)
+                .Build();
+            
             return new ServiceCollection()
-                // Add common FluentMigrator services
                 .AddFluentMigratorCore()
                 .ConfigureRunner(rb => rb
-                    // Add SQLite support to FluentMigrator
                     .AddMySql5()
-                    // Set the connection string
-                    .WithGlobalConnectionString("Server=localhost;User Id=root;Password=root;Database=etaskadvisor;")
-                    // Define the assembly containing the migrations
-                    .ScanIn(typeof(AddLogTable).Assembly).For.Migrations())
-                // Enable logging to console in the FluentMigrator way
+                    .WithGlobalConnectionString(config.GetConnectionString("PocoConnection"))
+                    .ScanIn(typeof(AddClientTable).Assembly).For.Migrations())
                 .AddLogging(lb => lb.AddFluentMigratorConsole())
-                // Build the service provider
                 .BuildServiceProvider(false);
         }
 
