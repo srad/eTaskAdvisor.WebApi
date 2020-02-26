@@ -45,7 +45,11 @@ namespace eTaskAdvisor.WebApi.Controllers
             }
 
             const string sql =
-                @"SELECT tasks.*, activities.name as activity_name, activities.description as activity_description
+                @"SELECT
+                    tasks.*,
+                    activities.activity_id,
+                    activities.name activity_name,
+                    activities.description activity_description
                 FROM tasks
                 JOIN activities USING(activity_id)
                 WHERE tasks.client_id = @0 AND tasks.done = @1
@@ -56,6 +60,7 @@ namespace eTaskAdvisor.WebApi.Controllers
             var tasks = Database.Query<ClientTask>(sql, client.ClientId, done)
                 .Select(result => new ClientTask
                 {
+                    ActivityId = result.ActivityId,
                     TaskId = result.TaskId,
                     Subject = result.Subject,
                     At = result.At,
