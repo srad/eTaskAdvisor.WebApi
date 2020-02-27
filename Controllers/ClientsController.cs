@@ -47,7 +47,7 @@ namespace eTaskAdvisor.WebApi.Controllers
 
             const string sql =
                 @"SELECT
-                    tasks.*,
+                    tasks.*, DATE_FORMAT(tasks.at, '%d.%m.%Y, %H:%i') at_formatted,
                     activities.activity_id,
                     activities.name activity_name,
                     activities.description activity_description
@@ -65,6 +65,7 @@ namespace eTaskAdvisor.WebApi.Controllers
                     TaskId = result.TaskId,
                     Subject = result.Subject,
                     At = result.At,
+                    AtFormatted = result.AtFormatted,
                     Duration = result.Duration,
                     Done =  result.Done,
                     Activity = new Activity {Name = result.ActivityName, Description = result.ActivityDescription},
@@ -96,8 +97,29 @@ namespace eTaskAdvisor.WebApi.Controllers
 
             task.ClientId = client.ClientId;
             await Database.InsertAsync(task);
-            task.Activity = await Database.FirstAsync<Activity>("WHERE activity_id = @0", task.ActivityId);
-            return Ok(task);
+            
+            const string sql = @"SELECT
+                    tasks.*, DATE_FORMAT(tasks.at, '%d.%m.%Y, %H:%i') at_formatted,
+                    activities.activity_id,
+                    activities.name activity_name,
+                    activities.description activity_description
+                FROM tasks
+                JOIN activities USING(activity_id)
+                WHERE task_id = @0
+                ";
+
+            var result = await Database.FirstAsync<ClientTask>(sql, task.TaskId);
+            return Ok(new ClientTask
+            {
+                ActivityId = result.ActivityId,
+                TaskId = result.TaskId,
+                Subject = result.Subject,
+                At = result.At,
+                AtFormatted = result.AtFormatted,
+                Duration = result.Duration,
+                Done =  result.Done,
+                Activity = new Activity {Name = result.ActivityName, Description = result.ActivityDescription},
+            });
         }
 
         [HttpPost("done")]

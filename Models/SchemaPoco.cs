@@ -95,6 +95,9 @@ namespace eTaskAdvisor.WebApi.Models
 
         [Ignore] public Activity Activity { get; set; }
 
+        [ResultColumn, Column(Name = "at_formatted")]
+        public string AtFormatted { get; set; }
+        
         [ResultColumn, Column(Name = "activity_name")]
         public string ActivityName { get; set; }
 
