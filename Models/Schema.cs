@@ -18,7 +18,7 @@ namespace eTaskAdvisor.WebApi.Models.Archived
         public virtual ICollection<Task> Tasks { get; set; }
     }
 
-    public class Activity
+    public class Aspect
     {
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int ActivityId { get; set; }
@@ -53,7 +53,7 @@ namespace eTaskAdvisor.WebApi.Models.Archived
 
     public class Affect
     {
-        [Column("activity_id")]
+        [Column("aspect_id")]
         public int ActivityId { get; set; }
         
         [Column("factor_id")]
@@ -68,7 +68,7 @@ namespace eTaskAdvisor.WebApi.Models.Archived
         [Column("description")]
         public string Description { get; set; }
 
-        public virtual Activity Activity { get; set; }
+        public virtual Aspect Aspect { get; set; }
         public virtual Factor Factor { get; set; }
         public virtual Influence Influence { get; set; }
     }
@@ -77,7 +77,7 @@ namespace eTaskAdvisor.WebApi.Models.Archived
     {
         [DatabaseGenerated(DatabaseGeneratedOption.None), Column("task_id")]
         public int TaskId { get; set; }
-        [Column("activity_id")]
+        [Column("aspect_id")]
         public int ActivityId { get; set; }
         [Column("client_id")]
         public int ClientId { get; set; }
@@ -88,7 +88,7 @@ namespace eTaskAdvisor.WebApi.Models.Archived
         [Column("duration")]
         public int Duration { get; set; }
 
-        public virtual Activity Activity { get; set; }
+        public virtual Aspect Aspect { get; set; }
         public virtual Client Client { get; set; }
     }
 

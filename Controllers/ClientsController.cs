@@ -48,11 +48,11 @@ namespace eTaskAdvisor.WebApi.Controllers
             const string sql =
                 @"SELECT
                     tasks.*, DATE_FORMAT(tasks.at, '%d.%m.%Y, %H:%i') at_formatted,
-                    activities.activity_id,
-                    activities.name activity_name,
-                    activities.description activity_description
+                    aspects.aspect_id,
+                    aspects.name aspect_name,
+                    aspects.description aspect_description
                 FROM tasks
-                JOIN activities USING(activity_id)
+                JOIN aspects USING(aspect_id)
                 WHERE tasks.client_id = @0 AND tasks.done = @1
                 ORDER BY at DESC
                 LIMIT 100
@@ -61,14 +61,14 @@ namespace eTaskAdvisor.WebApi.Controllers
             var tasks = Database.Query<ClientTask>(sql, client.ClientId, done)
                 .Select(result => new ClientTask
                 {
-                    ActivityId = result.ActivityId,
+                    AspectId = result.AspectId,
                     TaskId = result.TaskId,
                     Subject = result.Subject,
                     At = result.At,
                     AtFormatted = result.AtFormatted,
                     Duration = result.Duration,
                     Done =  result.Done,
-                    Activity = new Activity {Name = result.ActivityName, Description = result.ActivityDescription},
+                    Aspect = new Aspect {Name = result.AspectName, Description = result.AspectDescription},
                 });
 
             return Ok(tasks);
@@ -100,25 +100,25 @@ namespace eTaskAdvisor.WebApi.Controllers
             
             const string sql = @"SELECT
                     tasks.*, DATE_FORMAT(tasks.at, '%d.%m.%Y, %H:%i') at_formatted,
-                    activities.activity_id,
-                    activities.name activity_name,
-                    activities.description activity_description
+                    aspects.aspect_id,
+                    aspects.name aspect_name,
+                    aspects.description aspect_description
                 FROM tasks
-                JOIN activities USING(activity_id)
+                JOIN aspects USING(aspect_id)
                 WHERE task_id = @0
                 ";
 
             var result = await Database.FirstAsync<ClientTask>(sql, task.TaskId);
             return Ok(new ClientTask
             {
-                ActivityId = result.ActivityId,
+                AspectId = result.AspectId,
                 TaskId = result.TaskId,
                 Subject = result.Subject,
                 At = result.At,
                 AtFormatted = result.AtFormatted,
                 Duration = result.Duration,
                 Done =  result.Done,
-                Activity = new Activity {Name = result.ActivityName, Description = result.ActivityDescription},
+                Aspect = new Aspect {Name = result.AspectName, Description = result.AspectDescription},
             });
         }
 

@@ -12,7 +12,7 @@ namespace eTaskAdvisor.WebApi.Data
 
 /*
     public DbSet<Client> Clients { get; set; }
-    public DbSet<Activity> Activities { get; set; }
+    public DbSet<Activity> aspects { get; set; }
     public DbSet<Affect> Affects { get; set; }
     public DbSet<Factor> Factors { get; set; }
     public DbSet<Influence> Influences { get; set; }
@@ -28,7 +28,7 @@ namespace eTaskAdvisor.WebApi.Data
       base.OnModelCreating(modelBuilder);
 
       modelBuilder.Entity<Client>().ToTable("clients");
-      modelBuilder.Entity<Activity>().ToTable("activities");
+      modelBuilder.Entity<Activity>().ToTable("aspects");
       modelBuilder.Entity<Affect>().ToTable("afffects");
       modelBuilder.Entity<Factor>().ToTable("factors");
       modelBuilder.Entity<Influence>().ToTable("influences");

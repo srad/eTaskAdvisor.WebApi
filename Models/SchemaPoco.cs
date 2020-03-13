@@ -18,15 +18,19 @@ namespace eTaskAdvisor.WebApi.Models
         [Ignore] public List<ClientTask> ClientTasks { get; set; }
     }
 
-    [TableName("activities")]
-    [PrimaryKey("activity_id", AutoIncrement = true)]
-    public class Activity
+    [TableName("aspects")]
+    [PrimaryKey("aspect_id", AutoIncrement = true)]
+    public class Aspect
     {
-        [Column(Name = "activity_id")] public int ActivityId { get; set; }
+        [Column(Name = "aspect_id")] public int AspectId { get; set; }
 
         [Column(Name = "name")] public string Name { get; set; }
+        
+        [Column(Name = "type_name")] public string TypeName { get; set; }
 
         [Column(Name = "description")] public string Description { get; set; }
+        
+        [Ignore] public AspectType AspectType { get; set; }
     }
 
     [TableName("factors")]
@@ -48,6 +52,15 @@ namespace eTaskAdvisor.WebApi.Models
 
         [Column(Name = "influence_display")] public string InfluenceDisplay { get; set; }
     }
+    
+    [TableName("types")]
+    [PrimaryKey("type_name", AutoIncrement = false)]
+    public class AspectType
+    {
+        [Column(Name = "type_name")] public string TypeName { get; set; }
+
+        [Column(Name = "type_display")] public string TypeDisplay { get; set; }
+    }
 
     [TableName("affects")]
     [PrimaryKey("affect_id", AutoIncrement = true)]
@@ -55,7 +68,7 @@ namespace eTaskAdvisor.WebApi.Models
     {
         [Column(Name = "affect_id")] public int AffectId { get; set; }
 
-        [Column(Name = "activity_id")] public int ActivityId { get; set; }
+        [Column(Name = "aspect_id")] public int AspectId { get; set; }
 
         [Column(Name = "factor_id")] public int FactorId { get; set; }
 
@@ -66,7 +79,7 @@ namespace eTaskAdvisor.WebApi.Models
         [Column(Name = "description"), AllowNull]
         public string Description { get; set; }
 
-        [Ignore] public Activity Activity { get; set; }
+        [Ignore] public Aspect Aspect { get; set; }
         [Ignore] public Factor Factor { get; set; }
         [Ignore] public Influence Influence { get; set; }
     }
@@ -83,7 +96,7 @@ namespace eTaskAdvisor.WebApi.Models
 
         [Column(Name = "task_id")] public int TaskId { get; set; }
 
-        [Column(Name = "activity_id")] public int ActivityId { get; set; }
+        [Column(Name = "aspect_id")] public int AspectId { get; set; }
 
         [Column(Name = "subject")] public string Subject { get; set; }
 
@@ -93,15 +106,15 @@ namespace eTaskAdvisor.WebApi.Models
 
         [Column(Name = "done")] public bool Done { get; set; }
 
-        [Ignore] public Activity Activity { get; set; }
+        [Ignore] public Aspect Aspect { get; set; }
 
         [ResultColumn, Column(Name = "at_formatted")]
         public string AtFormatted { get; set; }
         
-        [ResultColumn, Column(Name = "activity_name")]
-        public string ActivityName { get; set; }
+        [ResultColumn, Column(Name = "aspect_name")]
+        public string AspectName { get; set; }
 
-        [ResultColumn, Column(Name = "activity_description")]
-        public string ActivityDescription { get; set; }
+        [ResultColumn, Column(Name = "aspect_description")]
+        public string AspectDescription { get; set; }
     }
 }

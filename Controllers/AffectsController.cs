@@ -27,13 +27,13 @@ namespace eTaskAdvisor.WebApi.Controllers
                 limit = 100;
             } 
             const string sql = @"SELECT * FROM affects
-                JOIN activities USING(activity_id)
+                JOIN aspects USING(aspect_id)
                 JOIN influences USING(influence_name)
                 JOIN factors USING(factor_id)
-                ORDER BY activities.name, factors.name
+                ORDER BY aspects.name, factors.name
                 LIMIT @0,@1";
 
-            return Database.Fetch<Affect, Activity, Influence, Factor>(sql, page, limit).ToList();
+            return Database.Fetch<Affect, Aspect, Influence, Factor>(sql, page, limit).ToList();
         }
 
         [HttpPost]
@@ -42,19 +42,19 @@ namespace eTaskAdvisor.WebApi.Controllers
             await Database.InsertAsync(affect);
 
             const string sql = @"SELECT * FROM affects
-                JOIN activities USING(activity_id)
+                JOIN aspects USING(aspect_id)
                 JOIN influences USING(influence_name)
                 JOIN factors USING(factor_id)
                 WHERE affect_id = @0";
 
-            return Database.Fetch<Affect, Activity, Influence, Factor>(sql, affect.AffectId).FirstOrDefault();
+            return Database.Fetch<Affect, Aspect, Influence, Factor>(sql, affect.AffectId).FirstOrDefault();
         }
 
         [HttpPut]
-        public async Task<Affect> Put([FromBody] Affect activity)
+        public async Task<Affect> Put([FromBody] Affect aspectId)
         {
-            await Database.UpdateAsync(activity);
-            return activity;
+            await Database.UpdateAsync(aspectId);
+            return aspectId;
         }
 
         [HttpDelete("{id}")]
