@@ -47,30 +47,20 @@ namespace eTaskAdvisor.WebApi.Controllers
 
             const string sql =
                 @"SELECT
-                    tasks.*, DATE_FORMAT(tasks.at, '%d.%m.%Y, %H:%i') at_formatted,
-                    aspects.aspect_id,
-                    aspects.name aspect_name,
-                    aspects.description aspect_description
+                    tasks.*,
+                    aspects.name aspect_name, aspects.description aspect_description,
+                    types.type_name aspect_type_name, types.type_display aspect_type_display,
+                    DATE_FORMAT(tasks.at, '%d.%m.%Y, %H:%i') at_formatted
                 FROM tasks
                 JOIN aspects USING(aspect_id)
+                JOIN types ON (aspects.type_name = types.type_name)
                 WHERE tasks.client_id = @0 AND tasks.done = @1
                 ORDER BY at DESC
                 LIMIT 100
                 ";
 
-            var tasks = Database.Query<ClientTask>(sql, client.ClientId, done)
-                .Select(result => new ClientTask
-                {
-                    AspectId = result.AspectId,
-                    TaskId = result.TaskId,
-                    Subject = result.Subject,
-                    At = result.At,
-                    AtFormatted = result.AtFormatted,
-                    Duration = result.Duration,
-                    Done =  result.Done,
-                    Aspect = new Aspect {Name = result.AspectName, Description = result.AspectDescription},
-                });
-
+            var tasks = Database.Fetch<ClientTask>(sql, client.ClientId, done);
+            
             return Ok(tasks);
         }
 
@@ -97,29 +87,21 @@ namespace eTaskAdvisor.WebApi.Controllers
 
             task.ClientId = client.ClientId;
             await Database.InsertAsync(task);
-            
-            const string sql = @"SELECT
-                    tasks.*, DATE_FORMAT(tasks.at, '%d.%m.%Y, %H:%i') at_formatted,
-                    aspects.aspect_id,
-                    aspects.name aspect_name,
-                    aspects.description aspect_description
+
+            const string sql =
+                @"SELECT
+                    tasks.*,
+                    aspects.name aspect_name, aspects.description aspect_description,
+                    types.type_name aspect_type_name, types.type_display aspect_type_display,
+                    DATE_FORMAT(tasks.at, '%d.%m.%Y, %H:%i') at_formatted
                 FROM tasks
                 JOIN aspects USING(aspect_id)
+                JOIN types ON (aspects.type_name = types.type_name)
                 WHERE task_id = @0
                 ";
 
-            var result = await Database.FirstAsync<ClientTask>(sql, task.TaskId);
-            return Ok(new ClientTask
-            {
-                AspectId = result.AspectId,
-                TaskId = result.TaskId,
-                Subject = result.Subject,
-                At = result.At,
-                AtFormatted = result.AtFormatted,
-                Duration = result.Duration,
-                Done =  result.Done,
-                Aspect = new Aspect {Name = result.AspectName, Description = result.AspectDescription},
-            });
+            var result = Database.Fetch<ClientTask>(sql, task.TaskId);
+            return Ok(result);
         }
 
         [HttpPost("done")]
