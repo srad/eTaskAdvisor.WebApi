@@ -4,6 +4,4 @@
 
 This is a .NET Core 3.x Web-Api implementation of [eTaskAdvisor.API](https://github.com/srad/eTaskAdvisor.API) for [eTaskAdvisor.App](https://github.com/srad/eTaskAdvisor.App)
 
-Difference between the implementations is that [eTaskAdvisor.API](https://github.com/srad/eTaskAdvisor.API) is implemented in node.js, GraphQL, MongoDB, Mongoose, JWT.
-
-This repo is more implemented for high performance and static typing, with MySQL, REST, PetaPoco, JWT.
+This implementation is more lightweighted, statically types and faster, but uses also JWT and MongoDB.

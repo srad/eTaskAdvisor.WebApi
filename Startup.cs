@@ -1,19 +1,14 @@
-using System;
-using eTaskAdvisor.WebApi.Migrations.FluentMigrator;
-using eTaskAdvisor.WebApi.Seeds;
-using FluentMigrator.Runner;
-//using eTaskAdvisor.WebApi.Data;
+using eTaskAdvisor.WebApi.Data;
+using eTaskAdvisor.WebApi.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using PetaPoco;
-//using Microsoft.EntityFrameworkCore;
-//using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
-//using Pomelo.EntityFrameworkCore.MySql.Storage;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
 
 namespace eTaskAdvisor.WebApi
 {
@@ -31,13 +26,32 @@ namespace eTaskAdvisor.WebApi
         {
             services.AddCors();
             services.AddControllers();
-            services.AddScoped<IDatabase, PetaPoco.Database>(ctx =>
-                new Database<PetaPoco.Providers.MySqlDatabaseProvider>(
-                    Configuration.GetConnectionString("PocoConnection")));
-
-            // configure strongly typed settings objects
             var appSettingsSection = Configuration.GetSection("AppSettings");
-            services.Configure<Data.AppSettings>(appSettingsSection);
+            services.Configure<AppSettings>(appSettingsSection);
+            services.AddTransient<MongoContext>();
+
+            services.Configure<MongoSettings>(options =>
+            {
+                options.ConnectionString = Configuration.GetSection("MongoConnection:ConnectionString").Value;
+                options.Database = Configuration.GetSection("MongoConnection:Database").Value;
+            });
+
+            var context = services.BuildServiceProvider().GetService<MongoContext>();
+            if (context.Influences.CountDocuments(_ => true) == 0)
+            {
+                context.Influences.InsertOne(new Influence {Name = "Positive", Description = "The effect is positive"});
+                context.Influences.InsertOne(new Influence {Name = "Negative", Description = "The effect is negative"});
+                context.Influences.InsertOne(
+                    new Influence {Name = "Unclear", Description = "The effect is unclear yet"});
+                context.Influences.InsertOne(new Influence
+                    {Name = "Indifferent", Description = "The effect make no difference"});
+            }
+
+            if (context.AspectTypes.CountDocuments(_ => true) == 0)
+            {
+                context.AspectTypes.InsertOne(new AspectType{Name = "Activity", Value = "activity", Description = "Actions taken to complete a part of a learning task."});
+                context.AspectTypes.InsertOne(new AspectType{Name = "General Learning", Value = "learning", Description = "General aspects affecting learning."});
+            }
 
             // configure jwt authentication
             var appSettings = appSettingsSection.Get<Data.AppSettings>();
@@ -62,43 +76,13 @@ namespace eTaskAdvisor.WebApi
                 });
 
             services.AddScoped<Services.IUserService, Services.UserService>();
-
-            /*
-            var connection = "Server=localhost;Database=ef;User=root;Password=1234;";
-      
-            services.AddDbContextPool<AppDbContext>(options => options
-                .UseMySql(connection, mySqlOptions => mySqlOptions
-                .ServerVersion(new ServerVersion(new Version(5, 7), ServerType.MySql))
-            ));
-            */
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            var runner = new Runner(CreateServices());
-            runner.UpdateDatabase();
-
             if (env.IsDevelopment())
             {
-                PocoSeed.Generate();
-
-                /*
-                using (var scope = host.Services.CreateScope())
-                {
-                    var services = scope.ServiceProvider;
-                    try
-                    {
-                        var context = services.GetRequiredService<AppDbContext>();
-                        DbInit.Initialize(context);
-                    }
-                    catch (Exception ex)
-                    {
-                        var logger = services.GetRequiredService<ILogger<Program>>();
-                        logger.LogError(ex, "An error occurred while seeding the database.");
-                    }
-                }
-                */
                 app.UseDeveloperExceptionPage();
             }
 
@@ -122,22 +106,6 @@ namespace eTaskAdvisor.WebApi
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
-        }
-
-        private static IServiceProvider CreateServices()
-        {
-            var config = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: false)
-                .Build();
-
-            return new ServiceCollection()
-                .AddFluentMigratorCore()
-                .ConfigureRunner(rb => rb
-                    .AddMySql5()
-                    .WithGlobalConnectionString(config.GetConnectionString("PocoConnection"))
-                    .ScanIn(typeof(AddAffectsTable).Assembly).For.Migrations())
-                .AddLogging(lb => lb.AddFluentMigratorConsole())
-                .BuildServiceProvider(false);
         }
     }
 }

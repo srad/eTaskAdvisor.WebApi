@@ -1,57 +1,56 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using eTaskAdvisor.WebApi.Helpers;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using PetaPoco;
-using System.Collections;
+using System.Threading.Tasks;
 using eTaskAdvisor.WebApi.Data;
 using eTaskAdvisor.WebApi.Models;
+using MongoDB.Driver;
 
 namespace eTaskAdvisor.WebApi.Services
 {
     public interface IUserService
     {
-        Client Authenticate(string password);
+        Task<Client> Authenticate(string password);
     }
 
     public class UserService : IUserService
     {
-        private readonly IDatabase _db;
+        private readonly MongoContext _context = null;
 
-        private readonly Data.AppSettings _settings;
+        private readonly AppSettings _settings;
 
-        public UserService(IOptions<Data.AppSettings> appSettings, IDatabase db)
+        public UserService(IOptions<AppSettings> appSettings, IOptions<MongoSettings> settings)
         {
             _settings = appSettings.Value;
-            this._db = db;
+            _context = new MongoContext(settings);
         }
 
         // Create random password, store hashed, but return the original password.
-        private Client Create()
+        private async Task<Client> Create()
         {
+            // Save the password hashed but return clear to the client
             var pass = SecurityHelper.RandomString(50);
-            var c = new Client { Password = pass };
-
-            c.Password = SecurityHelper.HashPassword(pass, _settings.Secret);
-            c.Token = CreateToken(c.ClientId.ToString());
-            _db.Insert(c);
-            c.Password = pass;
-
-            return c;
+            var client = new Client {Password = SecurityHelper.HashPassword(pass, _settings.Secret)};
+            await _context.Clients.InsertOneAsync(client);
+            
+            client.Token = CreateToken(client.ClientId);
+            await _context.Clients.UpdateOneAsync(clientQuery => clientQuery.ClientId == client.ClientId,
+                Builders<Client>.Update.Set(c => c.Token, client.Token));
+            client.Password = pass;
+            return client;
         }
 
-        public Client Authenticate(string password)
+        public async Task<Client> Authenticate(string password)
         {
             Client user = null;
 
             if (password != null)
             {
                 var hashed = SecurityHelper.HashPassword(password, _settings.Secret);
-                var sql = @"SELECT * FROM clients WHERE password = '" + hashed + "' LIMIT 1";
-                user = _db.Query<Client>(sql).SingleOrDefault();
+                user = await _context.Clients.Find(client => client.Password == hashed).FirstOrDefaultAsync();
                 if (user == null)
                 {
                     throw new Exception("User not found by password");
@@ -60,15 +59,15 @@ namespace eTaskAdvisor.WebApi.Services
 
             if (user == null)
             {
-                var created = Create();
-                return created.WithPassword();
+                return await Create();
+                //return created.Wi .WithPassword();
             }
 
-            user.Token = CreateToken(user.ClientId.ToString());
+            user.Token = CreateToken(user.ClientId);
             return user.ForPublic();
         }
 
-        string CreateToken(string createFrom)
+        private string CreateToken(string createFrom)
         {
             // authentication successful so generate jwt token
             var tokenHandler = new JwtSecurityTokenHandler();

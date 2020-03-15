@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using eTaskAdvisor.WebApi.Data;
 using eTaskAdvisor.WebApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PetaPoco;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
 
 namespace eTaskAdvisor.WebApi.Controllers
 {
@@ -16,7 +15,7 @@ namespace eTaskAdvisor.WebApi.Controllers
     [Route("[controller]")]
     public class FactorsController : AppController
     {
-        public FactorsController(IDatabase database) : base(database)
+        public FactorsController(IOptions<MongoSettings> settings) : base(settings)
         {
         }
 
@@ -26,28 +25,32 @@ namespace eTaskAdvisor.WebApi.Controllers
             if (limit > 100)
             {
                 limit = 100;
-            } 
-            return await Database.FetchAsync<Factor>(@"SELECT * FROM factors ORDER BY  name LIMIT @0,@1", page, limit);
+            }
+
+            return await DbContext
+                .Factors
+                .Find(_ => true)
+                .Skip(page)
+                .Limit(limit)
+                .ToListAsync();
         }
 
         [HttpPost]
         public async Task<Factor> Post([FromBody] Factor factor)
         {
-            await Database.InsertAsync(factor);
+            await DbContext.Factors.InsertOneAsync(factor);
             return factor;
         }
 
         [HttpPut]
         public async Task<Factor> Put([FromBody] Factor factor)
         {
-            await Database.UpdateAsync(factor);
+            await DbContext.Factors.ReplaceOneAsync(f => f.FactorId == factor.FactorId, factor);
             return factor;
         }
 
         [HttpDelete("{id}")]
-        public async Task<int> Delete(int id)
-        {
-            return await Database.DeleteAsync<Factor>(id);
-        }
+        public async Task<bool> Delete(string id) =>
+            (await DbContext.Factors.DeleteOneAsync(f => f.FactorId == id)).DeletedCount > 0;
     }
 }

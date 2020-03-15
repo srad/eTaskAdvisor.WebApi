@@ -14,13 +14,13 @@ namespace eTaskAdvisor.WebApi.Helpers
         public static Client ForPublic(this Client user)
         {
             user.Password = null;
-            user.ClientId = 0;
+            user.ClientId = "";
             return user;
         }
 
         public static Client WithPassword(this Client user)
         {
-            user.ClientId = 0;
+            user.ClientId = "";
             return user;
         }    
     }

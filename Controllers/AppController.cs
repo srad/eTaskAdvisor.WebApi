@@ -1,27 +1,31 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using eTaskAdvisor.WebApi.Data;
 using eTaskAdvisor.WebApi.Data.Error;
 using eTaskAdvisor.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
-using PetaPoco;
+using Microsoft.AspNetCore.Mvc.Diagnostics;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
 
 namespace eTaskAdvisor.WebApi.Controllers
 {
     public abstract class AppController : ControllerBase
     {
-        protected readonly IDatabase Database;
+        protected readonly MongoContext DbContext;
 
-        protected AppController(IDatabase database)
+        protected AppController(IOptions<MongoSettings> settings)
         {
-            Database = database;
+            DbContext = new MongoContext(settings);
         }
 
-        protected async  Task<Client> GetClient()
+        protected async Task<Client> GetClient()
         {
             var token = Request.Headers["Authorization"].First().Split(" ")[1];
-            var client = await Database.SingleOrDefaultAsync<Client>(@"SELECT * from clients WHERE token = '" + token + "'");
-            return client;
+            return await DbContext.Clients.Find(client => client.Token == token).FirstAsync();
         }
     }
 }
