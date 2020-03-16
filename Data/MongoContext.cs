@@ -20,6 +20,7 @@ namespace eTaskAdvisor.WebApi.Data
         public IMongoCollection<Client> Clients => _database.GetCollection<Client>("Clients");
         public IMongoCollection<Aspect> Aspects => _database.GetCollection<Aspect>("Aspects");
         public IMongoCollection<Factor> Factors => _database.GetCollection<Factor>("Factors");
+        public IMongoCollection<FactorType> FactorTypes => _database.GetCollection<FactorType>("FactorTypes");
         public IMongoCollection<Influence> Influences => _database.GetCollection<Influence>("Influences");
         public IMongoCollection<AspectType> AspectTypes => _database.GetCollection<AspectType>("AspectTypes");
         public IMongoCollection<Affect> Affects => _database.GetCollection<Affect>("Affects");

@@ -41,16 +41,28 @@ namespace eTaskAdvisor.WebApi
             {
                 context.Influences.InsertOne(new Influence {Name = "Positive", Description = "The effect is positive"});
                 context.Influences.InsertOne(new Influence {Name = "Negative", Description = "The effect is negative"});
-                context.Influences.InsertOne(
-                    new Influence {Name = "Unclear", Description = "The effect is unclear yet"});
-                context.Influences.InsertOne(new Influence
-                    {Name = "Indifferent", Description = "The effect make no difference"});
+                context.Influences.InsertOne(new Influence {Name = "Unclear", Description = "The effect is unclear yet"});
+                context.Influences.InsertOne(new Influence {Name = "Indifferent", Description = "The effect make no difference"});
             }
 
             if (context.AspectTypes.CountDocuments(_ => true) == 0)
             {
-                context.AspectTypes.InsertOne(new AspectType{Name = "Activity", Value = "activity", Description = "Actions taken to complete a part of a learning task."});
-                context.AspectTypes.InsertOne(new AspectType{Name = "General Learning", Value = "learning", Description = "General aspects affecting learning."});
+                context.AspectTypes.InsertOne(new AspectType {Name = "Activity", Value = "activity", Description = "Actions taken to complete a part of a learning task."});
+                context.AspectTypes.InsertOne(new AspectType {Name = "General Learning", Value = "learning", Description = "General aspects affecting learning."});
+            }
+
+            if (context.FactorTypes.CountDocuments(_ => true) == 0)
+            {
+                context.FactorTypes.InsertOne(new FactorType {Name = "Air Quality", Description = "Indoor or outdoor air quality"});
+                context.FactorTypes.InsertOne(new FactorType {Name = "Color", Description = "Exposure to color"});
+                context.FactorTypes.InsertOne(new FactorType {Name = "Decoration", Description = "Decoration or other symbolic influences"});
+                context.FactorTypes.InsertOne(new FactorType {Name = "Environment", Description = "Any kind of specific environment, like natural ones"});
+                context.FactorTypes.InsertOne(new FactorType {Name = "Light", Description = "Natural or artificial light"});
+                context.FactorTypes.InsertOne(new FactorType {Name = "Music", Description = "Different Types of music"});
+                context.FactorTypes.InsertOne(new FactorType {Name = "Noise", Description = "Different noise types"});
+                context.FactorTypes.InsertOne(new FactorType {Name = "Temperature", Description = "Room temperature, outdoor temperature"});
+                context.FactorTypes.InsertOne(new FactorType {Name = "Technology", Description = "Any technology affecting learning in the environment"});
+                context.FactorTypes.InsertOne(new FactorType {Name = "Other", Description = "Other types of influences"});
             }
 
             // configure jwt authentication

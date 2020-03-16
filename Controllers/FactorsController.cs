@@ -27,11 +27,14 @@ namespace eTaskAdvisor.WebApi.Controllers
                 limit = 100;
             }
 
-            return await DbContext
-                .Factors
-                .Find(_ => true)
-                .Skip(page)
-                .Limit(limit)
+            return await DbContext.Factors
+                .Aggregate()
+                .Lookup<Factor, FactorType, FactorTempResult>(DbContext.FactorTypes,
+                    localField => localField.FactorTypeId,
+                    foreignField => foreignField.FactorTypeId,
+                    result => result.FactorType)
+                .Unwind<FactorTempResult, FactorResult>(a => a.FactorType)
+                .Sort(Builders<FactorResult>.Sort.Ascending("Name"))
                 .ToListAsync();
         }
 
@@ -52,5 +55,10 @@ namespace eTaskAdvisor.WebApi.Controllers
         [HttpDelete("{id}")]
         public async Task<bool> Delete(string id) =>
             (await DbContext.Factors.DeleteOneAsync(f => f.FactorId == id)).DeletedCount > 0;
+
+        [HttpGet("types/{page?}/{limit?}")]
+        public async Task<IEnumerable<FactorType>> GetFactorTypes(int page = 0, int limit = 100) => await DbContext.FactorTypes
+            .Find(_ => true)
+            .ToListAsync();
     }
 }

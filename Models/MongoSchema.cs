@@ -46,6 +46,28 @@ namespace eTaskAdvisor.WebApi.Models
 
         public string Name { get; set; }
         public string Description { get; set; }
+        
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string FactorTypeId { get; set; }
+    }
+
+    public class FactorType
+    {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string FactorTypeId { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+    }
+
+    public class FactorTempResult : Factor
+    {
+        public IEnumerable<FactorType> FactorType;
+    }
+
+    public class FactorResult : Factor
+    {
+        public FactorType FactorType { get; set; }
     }
 
     public class Influence
