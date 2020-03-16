@@ -30,3 +30,9 @@ dotnet run
 ```
 
 Some basic information will be populated in the database.
+
+## Design
+
+A basic overview of the entities show following diagram.
+
+![](https://raw.githubusercontent.com/srad/eTaskAdvisor.WebApi/master/Docs/schema.png)
