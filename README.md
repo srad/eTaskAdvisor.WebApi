@@ -8,11 +8,11 @@ This implementation is more lightweighted, statically types and faster, but uses
 
 ## Setup
 
-First you need to install .NET Core 3.x and MongoDB, then
+First you need to install .NET Core 3.x runtime or SDK and MongoDB, then
 
 ```bash
 git clone https://github.com/srad/eTaskAdvisor.WebApi.git
-cd eTaskAdvisor.WebApi.git
+cd eTaskAdvisor.WebApi
 dotnet restore
 ```
 
@@ -22,7 +22,7 @@ cp appsettings.Development.json
 appsettings.json
 ```
 
-Define your connection string, if it's not the default localhost and define a custom `secret`.
+Define your connection string, if it's not the default localhost and define a custom `secret` value.
 
 Now you can start:
 ```bash
