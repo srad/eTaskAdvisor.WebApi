@@ -9,8 +9,6 @@ The goal was to research the literature of `cognitive psychology` and `learning`
 This is a .NET Core 3.x Web-Api implementation for this purpose.
 A web frontend is implemented at [eTaskAdvisor.App](https://github.com/srad/eTaskAdvisor.App)
 
-This implementation is more lightweighted, statically types and faster, but uses also JWT and MongoDB.
-
 ## Setup
 
 First you need to install .NET Core 3.x runtime or SDK and MongoDB, then
@@ -36,8 +34,6 @@ dotnet run
 
 Some basic information will be populated in the database.
 
-## Design
-
-A basic overview of the entities show following diagram.
+## Data Model
 
 ![](https://raw.githubusercontent.com/srad/eTaskAdvisor.WebApi/master/Docs/schema.png)
