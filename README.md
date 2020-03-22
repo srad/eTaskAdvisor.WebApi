@@ -1,8 +1,13 @@
 ﻿# eTaskAdvisor.WebApi
- 
+  
  [![Build Status](http://sedrad.com:8080/buildStatus/icon?job=eTaskAdvisor.WebApi)](http://sedrad.com:8080/job/eTaskAdvisor.WebApi/)
 
-This is a .NET Core 3.x Web-Api implementation of [eTaskAdvisor.API](https://github.com/srad/eTaskAdvisor.API) for [eTaskAdvisor.App](https://github.com/srad/eTaskAdvisor.App)
+This project is part of a `Learning Technologies` university course.
+
+The goal was to research the literature of `cognitive psychology` and `learning` about the effects of environmental factors on learning tasks and to develop a framework to capture and categorize the effects to feed the knowledge into a system and provide an API to access the knowledge for recommendations. Below you can see the data model. It also contains entities for managing clients and tasks (beside the knowledge entities).
+
+This is a .NET Core 3.x Web-Api implementation for this purpose.
+A web frontend is implemented at [eTaskAdvisor.App](https://github.com/srad/eTaskAdvisor.App)
 
 This implementation is more lightweighted, statically types and faster, but uses also JWT and MongoDB.
 
