@@ -1,6 +1,6 @@
 ﻿# eTaskAdvisor.WebApi
   
- [![Build Status](http://sedrad.com:8080/buildStatus/icon?job=eTaskAdvisor.WebApi)](http://sedrad.com:8080/job/eTaskAdvisor.WebApi/)
+ [![Build Status](https://jenkins.sedrad.com/buildStatus/icon?job=eTaskAdvisor.WebApi)](https://jenkins.sedrad.com/job/eTaskAdvisor.WebApi/)
 
 This project is part of a `Learning Technologies` university course.
 
